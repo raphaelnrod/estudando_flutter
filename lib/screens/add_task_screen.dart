@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:nosso_primeiro_projeto/components/task.dart';
+import 'package:nosso_primeiro_projeto/data/task_dao.dart';
 import 'package:nosso_primeiro_projeto/data/task_inherited.dart';
 import 'package:nosso_primeiro_projeto/model/task_dto.dart';
 
 class AddTaskScreen extends StatefulWidget {
-
-  const AddTaskScreen({super.key, required this.homeContext});
+  const AddTaskScreen({super.key, required this.homeContext, this.taskName = ''});
 
   final BuildContext homeContext;
+  final String taskName;
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
@@ -51,6 +53,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: TextFormField(
+                              //initialValue: widget.taskName.isNotEmpty ? widget.taskName : '',
                               controller: nameController,
                               validator: (value) {
                                 if (value!.isEmpty) {
@@ -58,6 +61,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 }
                                 return null;
                               },
+                              enabled: widget.taskName.isEmpty,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   focusColor: Colors.blueGrey,
@@ -72,8 +76,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               keyboardType: TextInputType.number,
                               controller: diffController,
                               validator: (value) {
-                                if (value!.isEmpty)
+                                if (value!.isEmpty) {
                                   return 'Digite uma dificuldade';
+                                }
                                 int number = int.parse(value);
                                 if (number < 1 || number > 5) {
                                   return 'Digite um valor entre 1 e ';
@@ -146,10 +151,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
                                       int diff = int.parse(diffController.text);
-                                      TaskInherited.of(widget.homeContext).newTask(TaskDTO(
-                                          taskName: nameController.text,
-                                          difficulty: diff,
-                                          imageURL: imageController.text));
+                                      TaskDao().save(Task(
+                                          name: nameController.text,
+                                          taskLevel: diff,
+                                          image: imageController.text));
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
                                               content: Text(
